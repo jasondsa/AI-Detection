@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import pickle
+import re
 
 # Construct file paths dynamically
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +15,7 @@ tfidf = pickle.load(open(tfidf_path, 'rb'))
 # Set page configuration
 st.set_page_config(
     page_title="AI Text Classifier",
-    page_icon="🌙",
+    page_icon="🤖",
     layout="centered",
     initial_sidebar_state="expanded"
 )
@@ -27,7 +28,7 @@ dark_theme_css = """
             color: #ffffff;
         }
         h1 {
-            color: #d31235; /* Title Color */
+            color: #d31235; 
             text-align: center;
             font-family: Arial, sans-serif;
         }
@@ -62,12 +63,11 @@ st.sidebar.title("AI vs Human Detector")
 st.sidebar.write("This tool classifies text as either written by AI or by a human.")
 st.sidebar.markdown("---")
 
-
 # Main Title
 st.markdown(
     """
     <div style="text-align: center; background-color: #262730; padding: 20px; border-radius: 10px;">
-        <h1 style="color: #d31235; font-family: Arial, sans-serif;">AI Text Classifier</h1>
+        <h1 style="color: #d31235; font-family: Comic Sans MS, sans-serif;">AI Text Classifier</h1>
     </div>
     """,
     unsafe_allow_html=True
@@ -77,9 +77,25 @@ st.markdown(
 st.markdown("### Enter your text below to classify:")
 message = st.text_area("Message", height=200)
 
+# Validation logic
+def validate_message(msg):
+    if not msg.strip():
+        return "Message cannot be empty or only blank spaces."
+    if not any(char.isalnum() for char in msg):
+        return "Message must contain letters or numbers, not just special characters."
+    if len(msg.split()) < 10:
+        return "Message must contain at least 10 words."
+    return None
+
 # Classification button
 if st.button("Classify"):
-    if message.strip():
+    validation_error = validate_message(message)
+    if validation_error:
+        st.markdown(
+            f'<div class="stAlert stAlert-warning">{validation_error}</div>',
+            unsafe_allow_html=True,
+        )
+    else:
         text = tfidf.transform([message])
         result = clf_svm.predict(text)
         if result == 1:
@@ -92,17 +108,12 @@ if st.button("Classify"):
                 '<div class="stAlert stAlert-info">The text is likely written by <b style="color: #00CED1;">Human</b>.</div>',
                 unsafe_allow_html=True,
             )
-    else:
-        st.markdown(
-            '<div class="stAlert stAlert-warning">Please enter some text to classify.</div>',
-            unsafe_allow_html=True,
-        )
 
 # Footer
 st.markdown(
     """
     <hr style="border: 1px solid #444444;">
-    <p style="text-align: center; font-size: 12px; color: grey;">Developed by Jason D'sa | © 2024</p>
+    <p style="text-align: center; font-size: 12px; color: white;">Developed by Jason D'sa | © 2024</p>
     """,
     unsafe_allow_html=True
 )
