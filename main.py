@@ -1,9 +1,15 @@
 import streamlit as st
+import os
 import pickle
-import numpy as np
 
-clf_svm = pickle.load(open('clf.pkl', 'rb'))
-tfidf = pickle.load(open('tfidf.pkl', 'rb'))
+# Construct file paths dynamically
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+clf_path = os.path.join(BASE_DIR, 'clf.pkl')
+tfidf_path = os.path.join(BASE_DIR, 'tfidf.pkl')
+
+# Load the models
+clf_svm = pickle.load(open(clf_path, 'rb'))
+tfidf = pickle.load(open(tfidf_path, 'rb'))
 
 st.title("AI Text Classifier")
 
